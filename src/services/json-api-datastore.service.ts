@@ -198,13 +198,27 @@ export class JsonApiDatastore {
         }
         let value: any = params[key];
         if (value instanceof Array) {
-          for (let i = 0; i < value.length; i++) {
-            encodedStr = encodedStr + key + '=' + encodeURIComponent(value[i]) + '&';
+          for (var i = 0; i < value.length; i++) {
+            if (typeof value[i] === 'object') {
+              let encodedSubStr = this.toQueryString({
+                '': value[i]
+              });
+              encodedStr = encodedStr + key + encodedSubStr + '&';
+            } else {
+              encodedStr = encodedStr + key + '=' + encodeURIComponent(value[i]) + '&';
+            }
           }
         } else if (typeof value === 'object') {
           for (let innerKey in value) {
             if (value.hasOwnProperty(innerKey)) {
-              encodedStr = encodedStr + key + '[' + innerKey + ']=' + encodeURIComponent(value[innerKey]) + '&';
+              if (typeof value[innerKey] === 'object') {
+                let encodedSubStr = this.toQueryString({
+                  '': value[innerKey]
+                });
+                encodedStr = encodedStr + key + '[' + innerKey + ']' + encodedSubStr + '&';
+              } else {
+                encodedStr = encodedStr + key + '[' + innerKey + ']=' + encodeURIComponent(value[innerKey]) + '&';
+              }
             }
           }
         } else {
